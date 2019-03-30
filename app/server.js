@@ -16,7 +16,12 @@ const port = 3000;
 
 app.use(bodyParser.json());
 
-const sqlParams = {"host": "35.235.122.3", "user": "root", "pass": "root"}
+const sqlParams = {
+    "host": "35.233.234.172",
+    "user": "root",
+    "pass": "root",
+    "database": "data"
+};
 const db = new mysql.createConnection(sqlParams);
 
 db.queryBasic = function(q, res) {
@@ -33,7 +38,11 @@ db.queryBasic = function(q, res) {
     });
 };
 
-db.connect();
+db.connect((err) => {
+    if (err) {
+        throw err;
+    }
+});
 
 
 function verifyToken(token, db) {
