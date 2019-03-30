@@ -21,10 +21,6 @@ body {
 
 }
 
-#qrcode {
-
-}
-
 .card-1:hover {
   box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
 }
@@ -37,6 +33,28 @@ body {
 
 .logo {
 
-  width:180px;
+  height:175px;
 
+}
+
+.text-logo {
+  font-size:2em;
+  padding: 0px;
+  margin:0px;
+  line-height: 23px;
+  font-family: 'Pacifico', cursive;
+  color:#333333bf;
+}
+
+.small-logo-container1 {
+  display:flex;
+  flex-direction:row;
+  justify-content:space-between;
+  align-items: baseline;
+  width:150px;
+  height:50px;
+}
+
+.logo-small {
+  width:30px;
 }
