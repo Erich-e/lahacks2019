@@ -1,15 +1,13 @@
 // Backend
 
 // TODO
-// fix spanner perms
 // sanatize inputs
 // auth
 
 const bodyParser = require("body-parser");
 const express = require("express");
-const googleapis = require("googleapis");
+const mysql = require("mysql");
 const request = require("request");
-const {Spanner} = require('@google-cloud/spanner');
 const uuidv4 = require("uuid/v4");
 
 const app = express();
@@ -17,22 +15,34 @@ const port = 3000;
 
 app.use(bodyParser.json());
 
-const projectId = "lahacks2019";
-const instanceId = "lahacks2019";
-const databaseId = "data";
-const spanner = new Spanner({projectId: projectId});
-const instance = spanner.instance(instanceId);
-const db = instance.database(databaseId);
+const sqlParams = {
+    "host": "35.233.234.172",
+    "user": "root",
+    "pass": "root",
+    "database": "data"
+};
+const db = new mysql.createConnection(sqlParams);
 
-db.runBasic = function(q, res) {
-    this.run(q).then(results => {
-        console.log(results)
-        res.status(200).send(err);
-    }).catch(err => {
-        console.log(err);
-        res.status(500).send(err);
+db.queryBasic = function(q, res) {
+    console.log("querying basic");
+    this.query(q, (err, results, fields) => {
+        console.log("running callback");
+        if (err) {
+            console.log(err);
+            res.status(500).send(err);
+        }
+        else {
+            res.status(200).json(results[0]);
+        }
     });
-}
+};
+
+db.connect((err) => {
+    if (err) {
+        throw err;
+    }
+});
+
 
 function verifyToken(token, db) {
     // make sure client is authenticated
@@ -44,13 +54,8 @@ function verifyToken(token, db) {
 app.get("/users", (req, res) => {
     console.log("/users GET");
     verifyToken("token");
-    const q = {sql: `SELECT * FROM users`};
-    db.run(q).then((results => {
-        res.status(200).json(results[0]);
-    })).catch(err => {
-        console.log(err);
-        res.status(500).send(err);
-    });
+    const q = `SELECT * FROM users`;
+    db.queryBasic(q, res);
 });
 
 app.post("/users", (req, res) => {
@@ -58,17 +63,17 @@ app.post("/users", (req, res) => {
     verifyToken("token");
     userId = uuidv4();
     email = req.body.email;
-    const q = {sql: `INSERT INTO users (userId, email) VALUES ("${userId}", "${email}")`};
+    const q = `INSERT INTO users (userId, email) VALUES ("${userId}", "${email}")`;
     console.log(q);
-    db.runBasic(q, res);
+    db.queryBasic(q, res);
 });
 
 app.delete("/users/:userId", (req, res) => {
     console.log("/users/userId DELETE");
     verifyToken("token");
     userId = req.params.userId;
-    const q = {sql: `DELETE FROM users WHERE userId=="${userId}"`};
-    db.runBasic(q, res);
+    const q = `DELETE FROM users WHERE userId=="${userId}"`;
+    db.queryBasic(q, res);
 });
 
 // client side ?
@@ -112,25 +117,36 @@ app.post("/vendors", (req ,res) => {
     verifyToken("token");
     vendorId = uuidv4();
     vendorName = req.body.vendorName;
-    const q = {sql: `INSERT INTO vendors (vendorId, vendorName) VALUES ("${vendorId}", "${vendorName}")`};
-    db.runBasic(q);
+    const q = `INSERT INTO vendors (vendorId, vendorName) VALUES ("${vendorId}", "${vendorName}")`;
+    db.queryBasic(q, res);
 })
 
 app.delete("/vendors/:vendorId", (req, res) => {
     console.log("/vendors DELETE");
     verifyToken("token");
     vendorId = req.params.vendorId;
-    const q = {sql: `DELETE FROM vendors WHERE vendorId=="${vendorId}"`}
-    db.runBasic(q);
+    const q = `DELETE FROM vendors WHERE vendorId=="${vendorId}"`;
+    db.queryBasic(q, res);
 })
 
-app.post("/vendors/:vendorId/transactions", (req, res) => {
+app.get("/vendors/:vendorId/transactions", (res, req) => {
+    console.log("/vendors/vendorId/transactions GET");
     verifyToken("token");
+    vendorId = req.params.vendorId;
+    const q = `SELECT * FROM transactions WHERE vendorId=="${vendorId}"`;
+    db.queryBasic(q, res);
+});
+
+app.post("/vendors/:vendorId/transactions", (req, res) => {
+    console.log("/vendors/vendorId/transactions POST");
+    verifyToken("token");
+    transactionId = uuidv4();
     vendorId = params.vendorId;
     userId = req.body.userId;
     time = "spanner.commit_timestamp()";
-
-    res.send("Transaction");
+    const q = `INSERT INTO transactions (transactionId, vendorId, userId, foodItems, time)
+        VALUES ("${transactionId}", "${vendorId}", "${userId}", "${foodItems}", "${time}")`;
+    db.queryBasic(q, res);
 });
 
 app.listen(port, () => console.log(`listening on port ${port}`));
