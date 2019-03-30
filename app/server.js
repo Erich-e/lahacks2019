@@ -151,4 +151,8 @@ app.post("/vendors/:vendorId/transactions", (req, res) => {
     db.queryBasic(q, res);
 });
 
+app.get("/healthz", (req, res) => {
+    res.send("yee haw");
+})
+
 app.listen(port, () => console.log(`listening on port ${port}`));
