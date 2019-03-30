@@ -1,7 +1,6 @@
 // Backend
 
 // TODO
-// fix spanner perms
 // sanatize inputs
 // auth
 
@@ -73,7 +72,7 @@ app.delete("/users/:userId", (req, res) => {
     console.log("/users/userId DELETE");
     verifyToken("token");
     userId = req.params.userId;
-    const q = {sql: `DELETE FROM users WHERE userId=="${userId}"`};
+    const q = `DELETE FROM users WHERE userId=="${userId}"`;
     db.queryBasic(q, res);
 });
 
@@ -118,7 +117,7 @@ app.post("/vendors", (req ,res) => {
     verifyToken("token");
     vendorId = uuidv4();
     vendorName = req.body.vendorName;
-    const q = {sql: `INSERT INTO vendors (vendorId, vendorName) VALUES ("${vendorId}", "${vendorName}")`};
+    const q = `INSERT INTO vendors (vendorId, vendorName) VALUES ("${vendorId}", "${vendorName}")`;
     db.queryBasic(q, res);
 })
 
@@ -126,7 +125,7 @@ app.delete("/vendors/:vendorId", (req, res) => {
     console.log("/vendors DELETE");
     verifyToken("token");
     vendorId = req.params.vendorId;
-    const q = {sql: `DELETE FROM vendors WHERE vendorId=="${vendorId}"`}
+    const q = `DELETE FROM vendors WHERE vendorId=="${vendorId}"`;
     db.queryBasic(q, res);
 })
 
