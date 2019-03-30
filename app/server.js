@@ -16,17 +16,15 @@ const port = 3000;
 app.use(bodyParser.json());
 
 const sqlParams = {
-    "host": "35.233.234.172",
+    "host": "35.235.122.3",
     "user": "root",
-    "pass": "root",
+    "password": "root", // danger
     "database": "data"
 };
 const db = new mysql.createConnection(sqlParams);
 
 db.queryBasic = function(q, res) {
-    console.log("querying basic");
     this.query(q, (err, results, fields) => {
-        console.log("running callback");
         if (err) {
             console.log(err);
             res.status(500).send(err);
@@ -61,9 +59,11 @@ app.get("/users", (req, res) => {
 app.post("/users", (req, res) => {
     console.log("/users POST");
     verifyToken("token");
-    userId = uuidv4();
     email = req.body.email;
-    const q = `INSERT INTO users (userId, email) VALUES ("${userId}", "${email}")`;
+    userId = uuidv4();
+    const q = `INSERT INTO users (userId, email)
+    SELECT "${userId}", "${email}"
+    WHERE NOT("${email}" IN (SELECT email FROM users))`;
     console.log(q);
     db.queryBasic(q, res);
 });
@@ -72,7 +72,7 @@ app.delete("/users/:userId", (req, res) => {
     console.log("/users/userId DELETE");
     verifyToken("token");
     userId = req.params.userId;
-    const q = `DELETE FROM users WHERE userId=="${userId}"`;
+    const q = `DELETE FROM users WHERE userId="${userId}"`;
     db.queryBasic(q, res);
 });
 
@@ -117,7 +117,9 @@ app.post("/vendors", (req ,res) => {
     verifyToken("token");
     vendorId = uuidv4();
     vendorName = req.body.vendorName;
-    const q = `INSERT INTO vendors (vendorId, vendorName) VALUES ("${vendorId}", "${vendorName}")`;
+    const q = `INSERT INTO vendors (vendorId, vendorName)
+    SELECT "${vendorId}", "${vendorName}"
+    WHERE NOT("${vendorName}" IN (SELECT vendorName FROM vendors))`;
     db.queryBasic(q, res);
 })
 
@@ -125,7 +127,7 @@ app.delete("/vendors/:vendorId", (req, res) => {
     console.log("/vendors DELETE");
     verifyToken("token");
     vendorId = req.params.vendorId;
-    const q = `DELETE FROM vendors WHERE vendorId=="${vendorId}"`;
+    const q = `DELETE FROM vendors WHERE vendorId="${vendorId}"`;
     db.queryBasic(q, res);
 })
 
@@ -133,7 +135,7 @@ app.get("/vendors/:vendorId/transactions", (res, req) => {
     console.log("/vendors/vendorId/transactions GET");
     verifyToken("token");
     vendorId = req.params.vendorId;
-    const q = `SELECT * FROM transactions WHERE vendorId=="${vendorId}"`;
+    const q = `SELECT * FROM transactions WHERE vendorId="${vendorId}"`;
     db.queryBasic(q, res);
 });
 
