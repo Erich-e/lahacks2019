@@ -59,8 +59,8 @@ app.get("/users", (req, res) => {
 app.post("/users", (req, res) => {
     console.log("/users POST");
     verifyToken("token");
-    email = req.body.email;
     userId = uuidv4();
+    email = req.body.email;
     const q = `INSERT INTO users (userId, email)
     SELECT "${userId}", "${email}"
     WHERE NOT("${email}" IN (SELECT email FROM users))`;
