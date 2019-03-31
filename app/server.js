@@ -139,12 +139,8 @@ router.post("/users/login", (req, res) => {
             return res.status(500).send(err);
         }
         else {
-<<<<<<< HEAD
             console.log("else");
             userRow = results[0];
-=======
-            userRow = results[0][0];
->>>>>>> 2755093af9406593aeeb9eb3ee82cb4035219dea
             formPassword = crypto.pbkdf2Sync(req.body.password, userRow["salt"], 1000, 256, "sha256").toString("hex");
             console.log(formPassword);
             if (formPassword == userRow["password"]) {
