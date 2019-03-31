@@ -5,6 +5,7 @@
 // auth
 
 const bodyParser = require("body-parser");
+const crypto = require("crypto");
 const express = require("express");
 const mysql = require("mysql");
 const request = require("request");
@@ -62,8 +63,11 @@ router.post("/users", (req, res) => {
     verifyToken("token");
     userId = uuidv4();
     email = req.body.email;
-    const q = `INSERT INTO users (userId, email)
-    SELECT "${userId}", "${email}"
+    salt = crypto.randomBytes(16).toString("hex");
+    password = crypto.pbkdf2Sync(req.body.password, salt, 1000, 512, "sha512").toString("hex");
+
+    const q = `INSERT INTO users (userId, email, salt, password)
+    SELECT "${userId}", "${email}, ${salt}, ${password}"
     WHERE NOT("${email}" IN (SELECT email FROM users))`;
     console.log(q);
     db.queryBasic(q, res);
