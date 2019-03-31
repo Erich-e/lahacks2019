@@ -18,7 +18,7 @@ const port = 3000;
 var router = express.Router();
 
 // TODO get this from kms
-const mySecret = "qwertyuiop";
+const mySecret = crypto.randomBytes(8)
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
@@ -107,14 +107,23 @@ app.get("/dashboard", verifyToken, (req,res) => {
 
 })
 
+<<<<<<< HEAD
 app.get("/recipes", verifyToken, (req,res) => {
   res.render(path.join(__dirname + "/frontend/recipes.ejs"));
 
 })
 
 app.get("/grocery-list", verifyToken, (req,res) => {
+=======
+app.get("/grocery-list", (req,res) => {
+>>>>>>> 2755093af9406593aeeb9eb3ee82cb4035219dea
   res.render(path.join(__dirname + "/frontend/grocery-list.ejs"));
 })
+
+//
+// app.get("/recipes", (req,res) => {
+//  res.render(path.join(__dirname + "/frontend/recipes.ejs"));
+//})
 
 // User stuff
 router.get("/users", verifyToken, (req, res) => {
@@ -155,18 +164,21 @@ router.post("/users/login", (req, res) => {
     var email = req.body.email;
 
     const q = `SELECT email, salt, password FROM users WHERE email="${email}"`;
-    console.log(q);
     db.query(q, (err, results, feilds) => {
         if (err) {
             console.log(err);
             return res.status(500).send(err);
         }
         else {
+<<<<<<< HEAD
             userRow = results[0];
             console.log(userRow);
             if (userRow == undefined) {
                 return res.status(404).end();
             }
+=======
+            userRow = results[0][0];
+>>>>>>> 2755093af9406593aeeb9eb3ee82cb4035219dea
             formPassword = crypto.pbkdf2Sync(req.body.password, userRow["salt"], 1000, 256, "sha256").toString("hex");
             if (formPassword == userRow["password"]) {
                 console.log(`${email} logged in successfully`);
@@ -184,11 +196,11 @@ router.post("/users/login", (req, res) => {
 });
 
 // Food recommendation
-router.get("/users/:userId/recommendation", verifyToken, (req, res) => {
+//v changed from "router" to "app" to render page directly w/ template engine
+app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
+  app.use('/', express.static(path.join(__dirname, 'frontend')));
     console.log("/users/userId/recommend POST");
     user = req.params["userId"];
-
-    // magic
 
     payload = {
         "ingredients": ["banana", "pear", "apple"]
@@ -205,9 +217,23 @@ router.get("/users/:userId/recommendation", verifyToken, (req, res) => {
     request(yummlyApiReq, function (error, response, body) {
       if (error) {
           return console.log(err);
+          res.render(path.join(__dirname + "/frontend/recipes.ejs"), err);
       }
 
-    res.send(body);
+      var imagesToPush = []
+      var titlesToPush = []
+
+      var recommendations = JSON.parse(body)[Object.keys(JSON.parse(body))[1]]
+
+       for(var i = 0; i < recommendations.length;i++){
+        imagesToPush.push(recommendations[i].smallImageUrls[0])
+       }
+
+       for(var i = 0; i < recommendations.length;i++){
+        titlesToPush.push(recommendations[i].recipeName)
+       }
+
+      res.render(path.join(__dirname + "/frontend/recipes.ejs"));
 
     });
 
