@@ -7,20 +7,18 @@
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const mysql = require("mysql");
 const request = require("request");
 const uuidv4 = require("uuid/v4");
 var path = require('path');
 
-
-
-
-
-
-
 const app = express();
 const port = 3000;
 var router = express.Router();
+
+// TODO get this from kms
+const mySecret = crypto.randomBytes(8)
 
 app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, 'frontend')));
@@ -37,23 +35,37 @@ db.queryBasic = function(q, res) {
     this.query(q, (err, results, fields) => {
         if (err) {
             console.log(err);
-            res.status(500).send(err);
+            return res.status(500).send(err);
         }
-        else {
-            res.status(200).json(results[0]);
-        }
+        return res.status(200).json(results[0]);
     });
 };
 
 db.connect((err) => {
     if (err) {
-  //      throw err;
+       throw err;
     }
 });
 
 
-function verifyToken(token, db) {
-    // make sure client is authenticated
+// Middleware
+function verifyToken(req, res, next) {
+    let token = req.headers["x-access-token"] || req.headers["Authorizatin"];
+    if (token) {
+        jwt.verify(token, mySecret, (err, decoded) => {
+            if (err) {
+                console.log(err);
+                return res.status(401).send(err);
+            }
+            else {
+                req.decoded = decoded;
+                next();
+            }
+        });
+    }
+    else {
+        return res.status(401).send("No auth token provided");
+    }
 }
 
 // Routes
@@ -74,59 +86,72 @@ app.get("/grocery-list", (req,res) => {
 })
 
 // User stuff
-router.get("/users", (req, res) => {
+router.get("/users", verifyToken, (req, res) => {
     console.log("/users GET");
-    verifyToken("token");
     const q = `SELECT * FROM users`;
     db.queryBasic(q, res);
 });
 
 router.post("/users", (req, res) => {
     console.log("/users POST");
-    verifyToken("token");
     userId = uuidv4();
     email = req.body.email;
     salt = crypto.randomBytes(16).toString("hex");
-    password = crypto.pbkdf2Sync(req.body.password, salt, 1000, 512, "sha512").toString("hex");
+    password = crypto.pbkdf2Sync(req.body.password, salt, 1000, 256, "sha256").toString("hex");
 
     const q = `INSERT INTO users (userId, email, salt, password)
-    SELECT "${userId}", "${email}, ${salt}, ${password}"
+    SELECT "${userId}", "${email}", "${salt}", "${password}"
     WHERE NOT("${email}" IN (SELECT email FROM users))`;
-    console.log(q);
-    db.queryBasic(q, res);
+    db.query(q, (err, results, fields) => {
+        if (err) {
+            return res.status(500).send(err);
+        }
+        let token = jwt.sign({email: email}, mySecret, {expiresIn: "24h"});
+        return res.status(200).send(token);
+    });
 });
 
-router.delete("/users/:userId", (req, res) => {
+router.delete("/users/:userId", verifyToken, (req, res) => {
     console.log("/users/userId DELETE");
-    verifyToken("token");
     userId = req.params.userId;
     const q = `DELETE FROM users WHERE userId="${userId}"`;
     db.queryBasic(q, res);
 });
 
-// client side ?
 router.post("/users/login", (req, res) => {
-    userLogin = req.username
+    console.log("/users/login POST");
+    email = req.body.email;
 
-    const q = {sql: "SELECT email, password FROM users WHERE "};
-
-    db.run(q).then(results => {
-        rows = results[0];
-
-    }).catch(err => {
-        console.log(err);
+    const q = `SELECT email, salt, password FROM users WHERE email=${email}`;
+    db.query(q, (err, results, feilds) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).send(err);
+        }
+        else {
+            userRow = results[0][0];
+            formPassword = crypto.pbkdf2Sync(req.body.password, userRow["salt"], 1000, 256, "sha256").toString("hex");
+            if (formPassword == userRow["password"]) {
+                console.log(`${email} logged in successfully`);
+                // Create a new jwt key
+                let token = jwt.sign({email: email}, mySecret, {expiresIn: "24h"});
+                return res.status(200).send(token);
+            }
+            else {
+                return res.status(401).end();
+            }
+        }
     });
 });
 
 // Food recommendation
-router.get("/users/:userId/recommendation", (req, res) => {
+router.get("/users/:userId/recommendation", verifyToken, (req, res) => {
     console.log("/users/userId/recommend POST");
-    verifyToken("token");
     user = req.params["userId"];
 
     // magic
 
-    paylad = {
+    payload = {
         "something": "special",
     };
 
@@ -140,9 +165,11 @@ router.get("/users/:userId/recommendation", (req, res) => {
 });
 
 // Vendor stuff
-router.post("/vendors", (req ,res) => {
+router.post("/vendors", verifyToken, (req ,res) => {
     console.log("/vendors POST");
-    verifyToken("token");
+    if (!verifyToken(req)) {
+        return res.status(401).end();
+    }
     vendorId = uuidv4();
     vendorName = req.body.vendorName;
     const q = `INSERT INTO vendors (vendorId, vendorName)
@@ -151,25 +178,31 @@ router.post("/vendors", (req ,res) => {
     db.queryBasic(q, res);
 })
 
-router.delete("/vendors/:vendorId", (req, res) => {
+router.delete("/vendors/:vendorId", verifyToken, (req, res) => {
     console.log("/vendors DELETE");
-    verifyToken("token");
+    if (!verifyToken(req)) {
+        return res.status(401).end();
+    }
     vendorId = req.params.vendorId;
     const q = `DELETE FROM vendors WHERE vendorId="${vendorId}"`;
     db.queryBasic(q, res);
 })
 
-router.get("/vendors/:vendorId/transactions", (res, req) => {
+router.get("/vendors/:vendorId/transactions", verifyToken, (req, res) => {
     console.log("/vendors/vendorId/transactions GET");
-    verifyToken("token");
+    if (!verifyToken(req)) {
+        return res.status(401).end();
+    }
     vendorId = req.params.vendorId;
     const q = `SELECT * FROM transactions WHERE vendorId="${vendorId}"`;
     db.queryBasic(q, res);
 });
 
-router.post("/vendors/:vendorId/transactions", (req, res) => {
+router.post("/vendors/:vendorId/transactions", verifyToken, (req, res) => {
     console.log("/vendors/vendorId/transactions POST");
-    verifyToken("token");
+    if (!verifyToken(req)) {
+        return res.status(401).end();
+    }
     transactionId = uuidv4();
     vendorId = params.vendorId;
     userId = req.body.userId;
