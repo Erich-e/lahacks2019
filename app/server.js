@@ -129,7 +129,7 @@ router.post("/users/login", (req, res) => {
     console.log("/users/login POST");
     email = req.body.email;
 
-    const q = `SELECT email, salt, password FROM users WHERE email=${email}`;
+    const q = `SELECT email, salt, password FROM users WHERE email="${email}"`;
     db.query(q, (err, results, feilds) => {
         if (err) {
             console.log(err);
