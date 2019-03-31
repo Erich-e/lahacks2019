@@ -20,6 +20,7 @@ var router = express.Router();
 // TODO get this from kms
 const mySecret = "qwertyuiop";
 
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, 'frontend')));
 app.set('view engine', 'ejs');
@@ -127,7 +128,9 @@ router.delete("/users/:userId", verifyToken, (req, res) => {
 
 router.post("/users/login", (req, res) => {
     console.log("/users/login POST");
-    email = req.body.email;
+    console.log(req.body);
+    console.log(req.headers);
+    var email = req.body.email;
 
     const q = `SELECT email, salt, password FROM users WHERE email="${email}"`;
     console.log(q);
@@ -137,13 +140,15 @@ router.post("/users/login", (req, res) => {
             return res.status(500).send(err);
         }
         else {
+            console.log("else");
             userRow = results[0];
             formPassword = crypto.pbkdf2Sync(req.body.password, userRow["salt"], 1000, 256, "sha256").toString("hex");
+            console.log(formPassword);
             if (formPassword == userRow["password"]) {
                 console.log(`${email} logged in successfully`);
                 // Create a new jwt key
                 let token = jwt.sign({email: email}, mySecret, {expiresIn: "24h"});
-                return res.status(200).send(token);
+                return res.redirect(301, "http://localhost:3000/dashboard");
             }
             else {
                 return res.status(401).end();
