@@ -26,7 +26,26 @@ function login() {
 };
 
 function signup() {
-    ;
+    console.log("signup");
+    var payload = {
+        email: document.getElementById("emailInput").value,
+        password: document.getElementById("passwordInput").value
+    };
+    console.log(payload);
+
+    $.post("/api/users", payload, (data, status) => {
+        console.log("returned from the server");
+        if (status == "success") {
+            document.cookie = `token=${data}`;
+            window.location.replace("http://localhost:3000/dashboard");
+        }
+        else {
+            document.getElementById("emailInput").value = "";
+            document.getElementById("passwordInput").value = "";
+            console.log(status);
+            alert(data);
+        }
+    });
 }
 
 function logout() {

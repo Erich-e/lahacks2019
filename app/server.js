@@ -39,7 +39,7 @@ db.queryBasic = function(q, res) {
             console.log(err);
             return res.status(500).send(err);
         }
-        return res.status(200).json(results[0]);
+        return res.status(200).json(results);
     });
 };
 
@@ -98,7 +98,7 @@ app.get("/", (req,res) => {
   res.sendFile(path.join(__dirname + "/frontend/index.html"));
 })
 
-app.get("/sign-up", verifyToken, (req,res) => {
+app.get("/sign-up", (req,res) => {
   res.sendFile(path.join(__dirname + "/frontend/sign-up.html"));
 })
 
