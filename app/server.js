@@ -12,6 +12,7 @@ const uuidv4 = require("uuid/v4");
 
 const app = express();
 const port = 3000;
+var router = express.Router();
 
 app.use(bodyParser.json());
 
@@ -49,14 +50,14 @@ function verifyToken(token, db) {
 // Routes
 
 // User stuff
-app.get("/users", (req, res) => {
+router.get("/users", (req, res) => {
     console.log("/users GET");
     verifyToken("token");
     const q = `SELECT * FROM users`;
     db.queryBasic(q, res);
 });
 
-app.post("/users", (req, res) => {
+router.post("/users", (req, res) => {
     console.log("/users POST");
     verifyToken("token");
     userId = uuidv4();
@@ -68,7 +69,7 @@ app.post("/users", (req, res) => {
     db.queryBasic(q, res);
 });
 
-app.delete("/users/:userId", (req, res) => {
+router.delete("/users/:userId", (req, res) => {
     console.log("/users/userId DELETE");
     verifyToken("token");
     userId = req.params.userId;
@@ -77,7 +78,7 @@ app.delete("/users/:userId", (req, res) => {
 });
 
 // client side ?
-app.post("/users/login", (req, res) => {
+router.post("/users/login", (req, res) => {
     userLogin = req.username
 
     const q = {sql: "SELECT email, password FROM users WHERE "};
@@ -91,7 +92,7 @@ app.post("/users/login", (req, res) => {
 });
 
 // Food recommendation
-app.get("/users/:userId/recommendation", (req, res) => {
+router.get("/users/:userId/recommendation", (req, res) => {
     console.log("/users/userId/recommend POST");
     verifyToken("token");
     user = req.params["userId"];
@@ -112,7 +113,7 @@ app.get("/users/:userId/recommendation", (req, res) => {
 });
 
 // Vendor stuff
-app.post("/vendors", (req ,res) => {
+router.post("/vendors", (req ,res) => {
     console.log("/vendors POST");
     verifyToken("token");
     vendorId = uuidv4();
@@ -123,7 +124,7 @@ app.post("/vendors", (req ,res) => {
     db.queryBasic(q, res);
 })
 
-app.delete("/vendors/:vendorId", (req, res) => {
+router.delete("/vendors/:vendorId", (req, res) => {
     console.log("/vendors DELETE");
     verifyToken("token");
     vendorId = req.params.vendorId;
@@ -131,7 +132,7 @@ app.delete("/vendors/:vendorId", (req, res) => {
     db.queryBasic(q, res);
 })
 
-app.get("/vendors/:vendorId/transactions", (res, req) => {
+router.get("/vendors/:vendorId/transactions", (res, req) => {
     console.log("/vendors/vendorId/transactions GET");
     verifyToken("token");
     vendorId = req.params.vendorId;
@@ -139,7 +140,7 @@ app.get("/vendors/:vendorId/transactions", (res, req) => {
     db.queryBasic(q, res);
 });
 
-app.post("/vendors/:vendorId/transactions", (req, res) => {
+router.post("/vendors/:vendorId/transactions", (req, res) => {
     console.log("/vendors/vendorId/transactions POST");
     verifyToken("token");
     transactionId = uuidv4();
@@ -150,6 +151,8 @@ app.post("/vendors/:vendorId/transactions", (req, res) => {
         VALUES ("${transactionId}", "${vendorId}", "${userId}", "${foodItems}", "${time}")`;
     db.queryBasic(q, res);
 });
+
+app.use("/api", router);
 
 app.get("/healthz", (req, res) => {
     res.send("yee haw");
