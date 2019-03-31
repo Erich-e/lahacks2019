@@ -107,16 +107,12 @@ app.get("/dashboard", verifyToken, (req,res) => {
 
 })
 
-<<<<<<< HEAD
 app.get("/recipes", verifyToken, (req,res) => {
   res.render(path.join(__dirname + "/frontend/recipes.ejs"));
 
 })
 
 app.get("/grocery-list", verifyToken, (req,res) => {
-=======
-app.get("/grocery-list", (req,res) => {
->>>>>>> 2755093af9406593aeeb9eb3ee82cb4035219dea
   res.render(path.join(__dirname + "/frontend/grocery-list.ejs"));
 })
 
@@ -170,15 +166,11 @@ router.post("/users/login", (req, res) => {
             return res.status(500).send(err);
         }
         else {
-<<<<<<< HEAD
             userRow = results[0];
             console.log(userRow);
             if (userRow == undefined) {
                 return res.status(404).end();
             }
-=======
-            userRow = results[0][0];
->>>>>>> 2755093af9406593aeeb9eb3ee82cb4035219dea
             formPassword = crypto.pbkdf2Sync(req.body.password, userRow["salt"], 1000, 256, "sha256").toString("hex");
             if (formPassword == userRow["password"]) {
                 console.log(`${email} logged in successfully`);
