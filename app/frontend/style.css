@@ -64,13 +64,15 @@ form {
 }
 
 .recipe-container {
-  dipslay: flex;
+  display: flex;
   flex-direction: row;
-  width:75vw;
-
+  max-width:750px;
+  flex-wrap:wrap;
+  justify-content: center;
 }
 
 .thumbnail-box{
+  margin: 10px;
   padding:20px;
   display:flex;
   flex-direction: column;
