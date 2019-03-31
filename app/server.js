@@ -204,7 +204,7 @@ app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
     user = req.params["userId"];
 
     payload = {
-        "ingredients": ["banana", "pear", "apple"]
+        "ingredients": ["pineapple", "avocado", "strawberry"]
     };
 
     var ingredients = payload[Object.keys(payload)[0]];
@@ -226,6 +226,8 @@ app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
 
       var recommendations = JSON.parse(body)[Object.keys(JSON.parse(body))[1]]
 
+console.log()
+
        for(var i = 0; i < recommendations.length;i++){
         imagesToPush.push(recommendations[i].smallImageUrls[0])
        }
@@ -233,6 +235,12 @@ app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
        for(var i = 0; i < recommendations.length;i++){
         titlesToPush.push(recommendations[i].recipeName)
        }
+
+       var theArray = []
+       theArray.push(imagesToPush, titlesToPush)
+
+       console.log(titlesToPush)
+       console.log(imagesToPush)
 
       res.render(path.join(__dirname + "/frontend/recipes.ejs"));
 
