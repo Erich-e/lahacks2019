@@ -11,18 +11,13 @@ const request = require("request");
 const uuidv4 = require("uuid/v4");
 var path = require('path');
 
-
-
-
-
-
-
 const app = express();
 const port = 3000;
 var router = express.Router();
 
 app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, 'frontend')));
+app.set('view engine', 'ejs');
 
 const sqlParams = {
     "host": "35.235.122.3",
@@ -64,12 +59,18 @@ app.get("/sign-up", (req,res) => {
   res.sendFile(path.join(__dirname + "/frontend/sign-up.html"));
 })
 
+app.get("/dashboard", (req,res) => {
+  res.render(path.join(__dirname + "/frontend/dashboard.ejs"));
+
+})
+
 app.get("/recipes", (req,res) => {
-  res.sendFile(path.join(__dirname + "/frontend/recipes.html"));
+  res.render(path.join(__dirname + "/frontend/recipes.ejs"));
+
 })
 
 app.get("/grocery-list", (req,res) => {
-  res.sendFile(path.join(__dirname + "/frontend/grocery-list.html"));
+  res.render(path.join(__dirname + "/frontend/grocery-list.ejs"));
 })
 
 // User stuff
@@ -115,24 +116,35 @@ router.post("/users/login", (req, res) => {
 });
 
 // Food recommendation
-router.get("/users/:userId/recommendation", (req, res) => {
+app.get("/users/:userId/recommendation", (req, res) => {
     console.log("/users/userId/recommend POST");
     verifyToken("token");
     user = req.params["userId"];
 
     // magic
 
-    paylad = {
-        "something": "special",
+    payload = {
+        "ingredients": ["banana", "pear", "apple"]
     };
 
-    request("https://api.yumly.com/vi", payload, (err, res, body => {
-        if (err) {
-            return console.log(err);
-        }
-        // Do something
-    }));
-    res.send("recommend");
+    var ingredients = payload[Object.keys(payload)[0]];
+
+    var yummlyApiReq = "http://api.yummly.com/v1/api/recipes?_app_id=90b7b4e2&_app_key=abe8fbf732dd7d47a7c26321652d126c&requirePictures=true"
+
+    ingredients.forEach(function(element){
+      yummlyApiReq = yummlyApiReq + "&allowedIngredient[]=" + element
+    })
+
+    request(yummlyApiReq, function (error, response, body) {
+      if (error) {
+          return console.log(err);
+      }
+
+    res.send(body);
+
+    });
+
+
 });
 
 // Vendor stuff
