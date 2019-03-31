@@ -10,12 +10,20 @@ const express = require("express");
 const mysql = require("mysql");
 const request = require("request");
 const uuidv4 = require("uuid/v4");
+var path = require('path');
+
+
+
+
+
+
 
 const app = express();
 const port = 3000;
 var router = express.Router();
 
 app.use(bodyParser.json());
+app.use('/', express.static(path.join(__dirname, 'frontend')));
 
 const sqlParams = {
     "host": "35.235.122.3",
@@ -39,7 +47,7 @@ db.queryBasic = function(q, res) {
 
 db.connect((err) => {
     if (err) {
-        throw err;
+  //      throw err;
     }
 });
 
@@ -49,6 +57,21 @@ function verifyToken(token, db) {
 }
 
 // Routes
+app.get("/", (req,res) => {
+  res.sendFile(path.join(__dirname + "/frontend/index.html"));
+})
+
+app.get("/sign-up", (req,res) => {
+  res.sendFile(path.join(__dirname + "/frontend/sign-up.html"));
+})
+
+app.get("/recipes", (req,res) => {
+  res.sendFile(path.join(__dirname + "/frontend/recipes.html"));
+})
+
+app.get("/grocery-list", (req,res) => {
+  res.sendFile(path.join(__dirname + "/frontend/grocery-list.html"));
+})
 
 // User stuff
 router.get("/users", (req, res) => {
@@ -89,7 +112,7 @@ router.post("/users/login", (req, res) => {
 
     db.run(q).then(results => {
         rows = results[0];
-        
+
     }).catch(err => {
         console.log(err);
     });
@@ -100,7 +123,7 @@ router.get("/users/:userId/recommendation", (req, res) => {
     console.log("/users/userId/recommend POST");
     verifyToken("token");
     user = req.params["userId"];
-    
+
     // magic
 
     paylad = {
