@@ -9,6 +9,10 @@ body {
   overflow-x: hidden;
 }
 
+form {
+  padding-left:10px;
+  padding-right:10px;
+}
 
 .card {
   display:flex;
