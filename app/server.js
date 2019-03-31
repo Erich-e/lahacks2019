@@ -142,15 +142,24 @@ router.post("/users", (req, res) => {
         if (err) {
             return res.status(500).send(err);
         }
-        let token = jwt.sign({email: email}, mySecret, {expiresIn: "24h"});
+        let token = jwt.sign({email: email, userId: userId}, mySecret, {expiresIn: "24h"});
         return res.status(200).send(token);
     });
 });
 
 router.delete("/users/:userId", verifyToken, (req, res) => {
     console.log("/users/userId DELETE");
-    userId = req.params.userId;
+    userId = req.decoded.userId;
     const q = `DELETE FROM users WHERE userId="${userId}"`;
+    db.queryBasic(q, res);
+});
+
+router.get("/users/transactions", verifyToken, (req, res) => {
+    console.log("/users/userId/transactions GET");
+    userId = req.params.userId;
+    const q = `SELECT transactions.transactionId, transactions.foodItems, vendor.vendorName FROM transactions
+    INNER JOIN vendors ON vendors.vendorID=transactions.vendorId
+    WHERE transactions.userId="${userId}"`;
     db.queryBasic(q, res);
 });
 
@@ -159,7 +168,7 @@ router.post("/users/login", (req, res) => {
     console.log(req.headers);
     var email = req.body.email;
 
-    const q = `SELECT email, salt, password FROM users WHERE email="${email}"`;
+    const q = `SELECT * FROM users WHERE email="${email}"`;
     db.query(q, (err, results, feilds) => {
         if (err) {
             console.log(err);
@@ -175,7 +184,7 @@ router.post("/users/login", (req, res) => {
             if (formPassword == userRow["password"]) {
                 console.log(`${email} logged in successfully`);
                 // Create a new jwt key
-                let token = jwt.sign({email: email}, mySecret, {expiresIn: "24h"});
+                let token = jwt.sign({email: email, userId: userRow["userId"]}, mySecret, {expiresIn: "24h"});
                 // return res.redirect(301, "http://localhost:3000/dashboard");
                 console.log("sending key");
                 return res.status(200).send(token);

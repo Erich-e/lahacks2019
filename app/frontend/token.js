@@ -33,18 +33,19 @@ function signup() {
     };
     console.log(payload);
 
+    $( document ).ajaxError(function() {
+        alert("Something went wrong");
+    });
+
     $.post("/api/users", payload, (data, status) => {
         console.log("returned from the server");
         if (status == "success") {
             document.cookie = `token=${data}`;
             window.location.replace("http://localhost:3000/dashboard");
         }
-        else {
-            document.getElementById("emailInput").value = "";
-            document.getElementById("passwordInput").value = "";
-            console.log(status);
-            alert(data);
-        }
+    }).complete( () => {
+        document.getElementById("emailInput").value = "";
+        document.getElementById("passwordInput").value = "";
     });
 }
 
@@ -52,4 +53,13 @@ function logout() {
     console.log("logout");
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     window.location.replace("http://localhost:3000/index.html");
+};
+
+function currentUserTransactions(transactions) {
+    $.get("/api/users/transactions", (data, status) => {
+        console.log("returned from the server");
+        if (status == "success") {
+            transactions.data = data;
+        }
+    })
 };
