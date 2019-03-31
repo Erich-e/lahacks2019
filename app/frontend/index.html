@@ -11,6 +11,7 @@
 
 	<!-- jQuery library -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script type=text/javascript src="token.js"> </script>
 
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -252,14 +253,13 @@
 	  <h1>Welcome</h1>
 	  <h6>Sign In.</h6>
 	  <br>
-		<form class="form">
 		  <!-- Email Address -->
 		  <div class="form-group text-left">
 		  	<div class="row">
 		    <div class="col-sm-4"></div>
 		    <div class="col-sm-4">
 		      <label for="exampleInputEmail1">Email address</label>
-		      <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+		      <input type="email" class="form-control" id="emailInput" aria-describedby="emailHelp" placeholder="Enter email">
 		    </div>
 		    <div class="col-sm-4"></div>
 			</div>
@@ -270,7 +270,7 @@
 			  	<div class="col-sm-4"></div>
 			  	<div class="col-sm-4">
 				    <label for="exampleInputPassword1">Password</label>
-				    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+				    <input type="password" class="form-control" id="passwordInput" placeholder="Password">
 				    <small id="emailHelp" class="form-text text-muted">Your password must be at least 8 characters</small>
 				</div>
 			    <div class="col-sm-4"></div>
