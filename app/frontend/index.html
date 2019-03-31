@@ -253,13 +253,14 @@
 	  <h1>Welcome</h1>
 	  <h6>Sign In.</h6>
 	  <br>
-		  <!-- Email Address -->
+			<!-- Email Address -->
+		<form>
 		  <div class="form-group text-left">
 		  	<div class="row">
 		    <div class="col-sm-4"></div>
 		    <div class="col-sm-4">
 		      <label for="exampleInputEmail1">Email address</label>
-		      <input type="email" class="form-control" id="emailInput" aria-describedby="emailHelp" placeholder="Enter email">
+		      <input type="email" id="emailInput" class="form-control" aria-describedby="emailHelp" placeholder="Enter email">
 		    </div>
 		    <div class="col-sm-4"></div>
 			</div>
@@ -269,14 +270,14 @@
 		  	<div class="row">
 			  	<div class="col-sm-4"></div>
 			  	<div class="col-sm-4">
-				    <label for="exampleInputPassword1">Password</label>
-				    <input type="password" class="form-control" id="passwordInput" placeholder="Password">
-				    <small id="emailHelp" class="form-text text-muted">Your password must be at least 8 characters</small>
+						<label for="exampleInputPassword1">Password</label>
+				    <input type="password" id="passwordInput" class="form-control" placeholder="Password">
+				    <!-- <small id="emailHelp" class="form-text text-muted">Your password must be at least 8 characters</small> -->
 				</div>
 			    <div class="col-sm-4"></div>
 		    </div>
 		  </div>
-		  <button type="submit" class="btn btn-danger">Submit</button>
+		  <button type="submit" class="btn btn-danger" onClick=login()>Submit</button>
 		</form>
 		<br>
 		<a href="sign-up">Sign Up</a>

@@ -18,7 +18,7 @@ const port = 3000;
 var router = express.Router();
 
 // TODO get this from kms
-const mySecret = crypto.randomBytes(8)
+const mySecret = "qwertyuiop";
 
 app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, 'frontend')));
@@ -130,13 +130,14 @@ router.post("/users/login", (req, res) => {
     email = req.body.email;
 
     const q = `SELECT email, salt, password FROM users WHERE email="${email}"`;
+    console.log(q);
     db.query(q, (err, results, feilds) => {
         if (err) {
             console.log(err);
             return res.status(500).send(err);
         }
         else {
-            userRow = results[0][0];
+            userRow = results[0];
             formPassword = crypto.pbkdf2Sync(req.body.password, userRow["salt"], 1000, 256, "sha256").toString("hex");
             if (formPassword == userRow["password"]) {
                 console.log(`${email} logged in successfully`);
