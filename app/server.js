@@ -18,7 +18,7 @@ const port = 3000;
 var router = express.Router();
 
 // TODO get this from kms
-const mySecret = "qwertyuiop";
+const mySecret = crypto.randomBytes(8)
 
 app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, 'frontend')));
@@ -51,6 +51,7 @@ db.connect((err) => {
 
 // Middleware
 function verifyToken(req, res, next) {
+  next(); /*
     let token = req.headers["x-access-token"] || req.headers["Authorizatin"];
     if (token) {
         jwt.verify(token, mySecret, (err, decoded) => {
@@ -66,7 +67,7 @@ function verifyToken(req, res, next) {
     }
     else {
         return res.status(401).send("No auth token provided");
-    }
+    }*/
 }
 
 // Routes
@@ -130,14 +131,13 @@ router.post("/users/login", (req, res) => {
     email = req.body.email;
 
     const q = `SELECT email, salt, password FROM users WHERE email="${email}"`;
-    console.log(q);
     db.query(q, (err, results, feilds) => {
         if (err) {
             console.log(err);
             return res.status(500).send(err);
         }
         else {
-            userRow = results[0];
+            userRow = results[0][0];
             formPassword = crypto.pbkdf2Sync(req.body.password, userRow["salt"], 1000, 256, "sha256").toString("hex");
             if (formPassword == userRow["password"]) {
                 console.log(`${email} logged in successfully`);
@@ -155,11 +155,12 @@ router.post("/users/login", (req, res) => {
 // Food recommendation
 //v changed from "router" to "app" to render page directly w/ template engine
 app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
+  app.use('/', express.static(path.join(__dirname, 'frontend')));
     console.log("/users/userId/recommend POST");
     user = req.params["userId"];
 
     payload = {
-        "ingredients": ["banana", "pear", "apple"]
+        "ingredients": ["banana", "pear", "apple"] 
     };
 
     var ingredients = payload[Object.keys(payload)[0]];
@@ -175,8 +176,21 @@ app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
           return console.log(err);
           res.render(path.join(__dirname + "/frontend/recipes.ejs"), err);
       }
-console.log()
-      res.render(path.join(__dirname + "/frontend/recipes.ejs"), body);
+
+      var imagesToPush = []
+      var titlesToPush = []
+
+      var recommendations = JSON.parse(body)[Object.keys(JSON.parse(body))[1]]
+
+       for(var i = 0; i < recommendations.length;i++){
+        imagesToPush.push(recommendations[i].smallImageUrls[0])
+       }
+
+       for(var i = 0; i < recommendations.length;i++){
+        titlesToPush.push(recommendations[i].recipeName)
+       }
+
+      res.render(path.join(__dirname + "/frontend/recipes.ejs"), imagesToPush, titlesToPush);
 
     });
 

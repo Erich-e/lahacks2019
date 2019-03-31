@@ -81,10 +81,10 @@
 <div class="recipe-container">
 
 
-	<% for(var i=0; i < body.matches.length; i++) { %>
+	<% for (var i = 0; i < imagesToPush.length; i++) { %>
 	   <tr>
-	     <td><%= body.matches[i].mageUrlsBySize %></td>
-	     <td><%= body[i].name %></td>
+	     <img src="<%= imagesToPush[i]" %> alt="">
+			 
 	   </tr>
 	<% } %>
 
@@ -116,7 +116,7 @@
 	  	</div>
 	  </div>
 	</footer>
-	<link rel="stylesheet" href="./style.css">
+	<link rel="stylesheet" href="/style.css">
 <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
 </body>
 </html>
