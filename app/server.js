@@ -83,14 +83,14 @@ app.get("/dashboard", (req,res) => {
 
 })
 
-app.get("/recipes", (req,res) => {
-  res.render(path.join(__dirname + "/frontend/recipes.ejs"));
-
-})
-
 app.get("/grocery-list", (req,res) => {
   res.render(path.join(__dirname + "/frontend/grocery-list.ejs"));
 })
+
+//
+// app.get("/recipes", (req,res) => {
+//  res.render(path.join(__dirname + "/frontend/recipes.ejs"));
+//})
 
 // User stuff
 router.get("/users", verifyToken, (req, res) => {
@@ -153,11 +153,10 @@ router.post("/users/login", (req, res) => {
 });
 
 // Food recommendation
-router.get("/users/:userId/recommendation", verifyToken, (req, res) => {
+//v changed from "router" to "app" to render page directly w/ template engine
+app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
     console.log("/users/userId/recommend POST");
     user = req.params["userId"];
-
-    // magic
 
     payload = {
         "ingredients": ["banana", "pear", "apple"]
@@ -174,9 +173,10 @@ router.get("/users/:userId/recommendation", verifyToken, (req, res) => {
     request(yummlyApiReq, function (error, response, body) {
       if (error) {
           return console.log(err);
+          res.render(path.join(__dirname + "/frontend/recipes.ejs"), err);
       }
-
-    res.send(body);
+console.log()
+      res.render(path.join(__dirname + "/frontend/recipes.ejs"), body);
 
     });
 

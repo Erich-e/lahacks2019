@@ -80,30 +80,21 @@
 
 <div class="recipe-container">
 
-	<div class="thumbnail-box">
-		<img src="/images/logo.png" alt="">
-<h2>HEY</h2>
-	</div>
+
+	<% for(var i=0; i < body.matches.length; i++) { %>
+	   <tr>
+	     <td><%= body.matches[i].mageUrlsBySize %></td>
+	     <td><%= body[i].name %></td>
+	   </tr>
+	<% } %>
+
 
 	<div class="thumbnail-box">
 		<img src="/images/logo.png" alt="">
 <h2>HEY</h2>
 	</div>
 
-	<div class="thumbnail-box">
-		<img src="/images/logo.png" alt="">
-<h2>HEY</h2>
-	</div>
 
-	<div class="thumbnail-box">
-		<img src="/images/logo.png" alt="">
-<h2>HEY</h2>
-	</div>
-
-	<div class="thumbnail-box">
-		<img src="/images/logo.png" alt="">
-<h2>HEY</h2>
-	</div>
 
 
 </div>
@@ -121,7 +112,7 @@
 	  		<p></p>
 	  	</div>
 	  	<div class="col-sm-4">
-	  		<p>Reach us at <br> <a href="grocers@google.com">grocers@google.com</a></p>
+	  		<p>Reach us at <br> <a href="bruinevents@google.com">grocers@google.com</a></p>
 	  	</div>
 	  </div>
 	</footer>
