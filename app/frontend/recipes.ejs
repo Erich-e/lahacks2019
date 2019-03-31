@@ -14,6 +14,7 @@
 
 	<!-- Latest compiled JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type=text/javascript src="token.js"> </script>
 </head>
 
 <style>
@@ -71,6 +72,14 @@
 	      <li><a href="recipes">Recipes</a></li>
 	      <li><a href="grocery-list">Grocery List</a></li>
 	      <li class="active"><a href="dashboard">My QR Code</a></li>
+				<li class="dropdown">
+					<a href="#" data-toggle="dropdown" class="dropdown-toggle">
+						<img src="images/silhouette.jpg" height=25 width=25>
+					</a>
+					<ul class="dropdown-menu">
+						<li><a onClick=logout() href="#">Logout</a></li>
+					</ul>
+				</li>
 		</ul>
 	  </div>
 	</nav>
