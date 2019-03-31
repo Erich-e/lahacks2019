@@ -39,7 +39,7 @@ db.queryBasic = function(q, res) {
             console.log(err);
             return res.status(500).send(err);
         }
-        return res.status(200).json(results[0]);
+        return res.status(200).json(results);
     });
 };
 
@@ -51,13 +51,35 @@ db.connect((err) => {
 
 
 // Middleware
+
+function getToken(req) {
+    console.log("getting token");
+    var token;
+    var rc = req.headers.cookie;
+    console.log(rc);
+    rc && rc.split(";").forEach( (cookie) => {
+        var parts = cookie.split("=");
+        console.log(parts);
+        if (parts[0].trim() == "token") {
+            token = parts[1].trim();
+        }
+    });
+    console.log("token");
+    console.log(token);
+    if (token == undefined) {
+        token = req.headers["x-access-token"] || req.headers["Authorization"];
+    }
+    return token;
+}
+
 function verifyToken(req, res, next) {
-    let token = req.headers["x-access-token"] || req.headers["Authorizatin"];
+    var token = getToken(req);
     if (token) {
         jwt.verify(token, mySecret, (err, decoded) => {
             if (err) {
                 console.log(err);
-                return res.status(401).send(err);
+                console.log("redirecting");
+                return res.redirect(302, "http://localhost:3000/index.html");
             }
             else {
                 req.decoded = decoded;
@@ -66,7 +88,8 @@ function verifyToken(req, res, next) {
         });
     }
     else {
-        return res.status(401).send("No auth token provided");
+        console.log("redirecting..")
+        return res.redirect(302, "http://localhost:3000/index.html");
     }
 }
 
@@ -79,12 +102,17 @@ app.get("/sign-up", (req,res) => {
   res.sendFile(path.join(__dirname + "/frontend/sign-up.html"));
 })
 
-app.get("/dashboard", (req,res) => {
+app.get("/dashboard", verifyToken, (req,res) => {
   res.render(path.join(__dirname + "/frontend/dashboard.ejs"));
 
 })
 
-app.get("/grocery-list", (req,res) => {
+app.get("/recipes", verifyToken, (req,res) => {
+  res.render(path.join(__dirname + "/frontend/recipes.ejs"));
+
+})
+
+app.get("/grocery-list", verifyToken, (req,res) => {
   res.render(path.join(__dirname + "/frontend/grocery-list.ejs"));
 })
 
@@ -128,7 +156,6 @@ router.delete("/users/:userId", verifyToken, (req, res) => {
 
 router.post("/users/login", (req, res) => {
     console.log("/users/login POST");
-    console.log(req.body);
     console.log(req.headers);
     var email = req.body.email;
 
@@ -139,15 +166,19 @@ router.post("/users/login", (req, res) => {
             return res.status(500).send(err);
         }
         else {
-            console.log("else");
             userRow = results[0];
+            console.log(userRow);
+            if (userRow == undefined) {
+                return res.status(404).end();
+            }
             formPassword = crypto.pbkdf2Sync(req.body.password, userRow["salt"], 1000, 256, "sha256").toString("hex");
-            console.log(formPassword);
             if (formPassword == userRow["password"]) {
                 console.log(`${email} logged in successfully`);
                 // Create a new jwt key
                 let token = jwt.sign({email: email}, mySecret, {expiresIn: "24h"});
-                return res.redirect(301, "http://localhost:3000/dashboard");
+                // return res.redirect(301, "http://localhost:3000/dashboard");
+                console.log("sending key");
+                return res.status(200).send(token);
             }
             else {
                 return res.status(401).end();

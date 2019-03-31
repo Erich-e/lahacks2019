@@ -9,13 +9,47 @@ function login() {
 
     $.post("/api/users/login", payload, (data, status) => {
         console.log("returned from the server");
-        if (status == 200) {
-            console.log(token);
+        console.log(data);
+        console.log(status);
+        if (status == "success") {
+            console.log(data);
             document.cookie = `token=${data}`;
-            window.location.replace("http://www.grocersapp.net/dashboard.html");
+            window.location.replace("http://localhost:3000/dashboard");
         }
         else {
-            ;
+            document.getElementById("emailInput").value = "";
+            document.getElementById("passwordInput").value = "";
+            console.log(status);
+            alert(data);
+        }
+    });
+};
+
+function signup() {
+    console.log("signup");
+    var payload = {
+        email: document.getElementById("emailInput").value,
+        password: document.getElementById("passwordInput").value
+    };
+    console.log(payload);
+
+    $.post("/api/users", payload, (data, status) => {
+        console.log("returned from the server");
+        if (status == "success") {
+            document.cookie = `token=${data}`;
+            window.location.replace("http://localhost:3000/dashboard");
+        }
+        else {
+            document.getElementById("emailInput").value = "";
+            document.getElementById("passwordInput").value = "";
+            console.log(status);
+            alert(data);
         }
     });
 }
+
+function logout() {
+    console.log("logout");
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    window.location.replace("http://localhost:3000/index.html");
+};

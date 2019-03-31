@@ -11,6 +11,7 @@
 
 	<!-- jQuery library -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	<script type=text/javascript src="token.js"> </script>
 
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -44,7 +45,7 @@
 <body>
 
 	<!-- Sign Up Box -->
-	<div class="sign-up text-center">
+	<div class="sign-up text-center"er
 
 
 
@@ -252,19 +253,19 @@
 	  <h1>Welcome</h1>
 	  <h6>Create an account.</h6>
 	  <br>
-		<form>
+		<!-- <form> -->
 		  <!-- Email Address -->
 		  <div class="form-group text-left">
 		  	<div class="row">
 		    <div class="col-sm-4"></div>
 		    <div class="col-sm-4">
 		      <label for="exampleInputEmail1">Email address</label>
-		      <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+		      <input type="email" class="form-control" id="emailInput" aria-describedby="emailHelp" placeholder="Enter email">
 		    </div>
 		    <div class="col-sm-4"></div>
 			</div>
 		  </div>
-		  <!-- First and Last Name -->
+		  <!-- First and Last Name
 		  <div class="form-group text-left">
 		  	<div class="row">
 		    <div class="col-sm-4"></div>
@@ -278,21 +279,21 @@
 		    </div>
 		    <div class="col-sm-4"></div>
 		    </div>
-		  </div>
+		  </div> -->
 		  <!-- Password -->
 		  <div class="form-group text-left">
 		  	<div class="row">
 			  	<div class="col-sm-4"></div>
 			  	<div class="col-sm-4">
 				    <label for="exampleInputPassword1">Password</label>
-				    <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+				    <input type="password" class="form-control" id="passwordInput" placeholder="Password">
 				    <small id="emailHelp" class="form-text text-muted">Your password must be at least 8 characters</small>
 				</div>
 			    <div class="col-sm-4"></div>
 		    </div>
 		  </div>
-		  <button type="submit" class="btn btn-danger">Submit</button>
-		</form>
+		  <button onclick="signup()" class="btn btn-danger">Submit</button>
+		<!-- </form> -->
 	</div>
 
 	<!-- Footer Panel -->
