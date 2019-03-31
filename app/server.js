@@ -51,7 +51,6 @@ db.connect((err) => {
 
 // Middleware
 function verifyToken(req, res, next) {
-  next(); /*
     let token = req.headers["x-access-token"] || req.headers["Authorizatin"];
     if (token) {
         jwt.verify(token, mySecret, (err, decoded) => {
@@ -67,7 +66,7 @@ function verifyToken(req, res, next) {
     }
     else {
         return res.status(401).send("No auth token provided");
-    }*/
+    }
 }
 
 // Routes
@@ -160,7 +159,7 @@ app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
     user = req.params["userId"];
 
     payload = {
-        "ingredients": ["banana", "pear", "apple"] 
+        "ingredients": ["banana", "pear", "apple"]
     };
 
     var ingredients = payload[Object.keys(payload)[0]];
@@ -190,7 +189,7 @@ app.get("/users/:userId/recommendation", verifyToken, (req, res) => {
         titlesToPush.push(recommendations[i].recipeName)
        }
 
-      res.render(path.join(__dirname + "/frontend/recipes.ejs"), imagesToPush, titlesToPush);
+      res.render(path.join(__dirname + "/frontend/recipes.ejs"));
 
     });
 
